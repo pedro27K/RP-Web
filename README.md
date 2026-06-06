@@ -1,4 +1,4 @@
-# RP Travels
+## RP Travels
 
 > **TFG del Ciclo Formativo de Grado Superior — Administración de Sistemas Informáticos en Red (ASIR)**
 
@@ -11,9 +11,8 @@ y administrar todo el sitio desde un panel privado.
 
 ## Autores
 
-<!-- ⚠️ RELLENA con los nombres reales de los DOS integrantes del grupo -->
-- **\<Pedro Trujillo Jurca\>**
-- **\<Raquel Romero Morilla\>**
+- **Pedro Trujillo Jurca**
+- **Raquel Romero Morilla**
 
 Ciclo: Grado Superior de ASIR · Curso académico 2025/2026
 
@@ -21,10 +20,11 @@ Ciclo: Grado Superior de ASIR · Curso académico 2025/2026
 
 ## Enlaces
 
-| 📄 Anteproyecto (PDF público) | `https://versed-bronze-497.notion.site/Anteproyecto-Web-Agencia-de-Viajes-b117a99ff980825595e401c33bd304ab` |
-| 🌐 Aplicación desplegada       | `<pega aquí la URL>` |
-| 🎬 Vídeo de presentación (máx. 10 min) | `<pega aquí el enlace de YouTube/Vimeo>` |
-| 🗂️ Repositorio                 | `<pega aquí la URL del repo público>` |
+| 📄 Anteproyecto (PDF público) | `http://rptravelstfg.notion.site/Anteproyecto-Web-Agencia-de-Viajes-b117a99ff980825595e401c33bd304ab` |
+| 🌐 Aplicación desplegada       | `https://rp-travels.onrender.com/index.php` |
+| 🎬 Vídeo de presentación (máx. 10 min) | `youtube.com` |
+| 🗂️ Repositorio versión desplegada en internet   | `https://github.com/pedro27K/RP/` |
+| 🗂️ Repositorio versión local   | `` |
 
 ---
 
@@ -34,7 +34,8 @@ Ciclo: Grado Superior de ASIR · Curso académico 2025/2026
 - **Frontend**: HTML5, CSS3 y JavaScript *vanilla* (sin frameworks)
 - **Servidor web**: Apache 2.4
 - **Contenedores**: Docker y Docker Compose (desarrollo) · Kubernetes (despliegue)
-- **Correo saliente**: msmtp + Gmail (con contraseña de aplicación)
+- **Correo saliente**: PHPMailer + Gmail (con contraseña de aplicación)
+- **Dependencias PHP**: Composer (PHPMailer ^7.1)
 - **Control de versiones**: Git + GitHub
 
 ---
@@ -44,6 +45,14 @@ Ciclo: Grado Superior de ASIR · Curso académico 2025/2026
 ```
 RP/
 ├── admin/         Panel de administración (PHP renderizado en servidor)
+│   ├── login.php / logout.php / auth-check.php
+│   ├── dashboard.php      KPIs y estadísticas
+│   ├── packages.php / package-edit.php
+│   ├── destinations.php
+│   ├── users.php / user-edit.php
+│   ├── bookings.php / send-booking-email.php
+│   ├── css/               Estilos del panel
+│   └── partials/          Sidebar reutilizable
 ├── api/           Endpoints JSON (api.php, auth.php) + config y helpers
 ├── assets/        Imágenes de destinos y vídeo de fondo
 ├── css/           Hojas de estilo separadas por sección
@@ -53,30 +62,29 @@ RP/
 ├── js/            Lógica del frontend, un archivo por pantalla
 ├── k8s/           Manifiestos de Kubernetes (Deployments, Services, Secret)
 ├── scripts/       Shell scripts: copias de seguridad y restauración
-├── sql/           Script SQL unificado (rp.sql): tablas, triggers y usuarios
+├── sql/           Scripts SQL: rp.sql (producción), rp-local.sql (desarrollo)
 ├── tools/         Worker multiproceso (recordatorios.php)
+├── vendor/        Dependencias Composer (PHPMailer)
+├── index.php      Punto de entrada de la web pública
+├── paquete.php    Detalle de un paquete
+├── resultados.php Resultados de búsqueda
+├── reserva.php    Confirmación de reserva
+├── perfil.php     Perfil del usuario
+├── login.php / logout.php
 ├── .env.example   Plantilla de variables de entorno
+├── composer.json  Dependencias PHP
 ├── Dockerfile
 ├── docker-compose.yml
-├── entrypoint.sh  Genera el msmtprc en el arranque del contenedor
-└── index.php      Punto de entrada de la web pública
+└── entrypoint.sh  Inicialización del contenedor
 ```
 
 ---
 
 ## Modelo de datos (Esquema E/R)
 
-La base de datos es **relacional (MySQL 8)** y consta de 11 tablas. El diagrama
-muestra las entidades, sus claves primarias (🔑) y foráneas (🔗) y las relaciones.
-
-![Diagrama Entidad/Relación de RP Travels](docs/diagrama_er.png)
-
-- **Relación 1:N** (uno a muchos): por ejemplo `destinos` → `paquetes`,
-  `reservas` → `viajeros` o `reservas` → `pagos`.
-- **Relación N:M** (muchos a muchos): `usuarios` ⟷ `paquetes`, resuelta mediante
-  la tabla intermedia **`reservas`** (un usuario puede reservar muchos paquetes y
-  un paquete puede ser reservado por muchos usuarios). `reservas` es una *entidad
-  asociativa* porque además guarda datos propios de la reserva (fechas, precio…).
+La base de datos es **relacional (MySQL 8)** y consta de 14 tablas. El diagrama
+muestra las entidades, sus claves primarias y foráneas y las relaciones.
+![Diagrama BBDD de RP Travels](docs/diagrama_bbdd.png) 
 
 El script completo de la base de datos está en [`sql/rp.sql`](sql/rp.sql).
 Incluye las tablas con sus datos, los triggers de auditoría y los usuarios de BD
@@ -106,13 +114,27 @@ La base de datos se crea automáticamente la primera vez con `sql/rp.sql`
 ## Puesta en marcha sin Docker (XAMPP)
 
 1. Copiar la carpeta en `C:\xampp\htdocs\RP`.
-2. Importar `sql/rp.sql` desde phpMyAdmin.
+2. Importar `sql/rp-local.sql` desde phpMyAdmin.
 3. Crear `.env` a partir de `.env.example` apuntando a `localhost`.
 4. Acceder a <http://localhost/RP>.
 
 ## Despliegue en Kubernetes
 
 Ver la guía detallada en [`k8s/README.md`](k8s/README.md).
+
+---
+
+## Variables de entorno
+
+| Variable    | Descripción                          |
+|-------------|--------------------------------------|
+| `DB_HOST`   | Hostname del servidor MySQL          |
+| `DB_PORT`   | Puerto de MySQL (por defecto 3306)   |
+| `DB_USER`   | Usuario de la base de datos          |
+| `DB_PASS`   | Contraseña de la base de datos       |
+| `DB_NAME`   | Nombre de la base de datos           |
+| `MAIL_USER` | Dirección de correo Gmail            |
+| `MAIL_PASS` | Contraseña de aplicación de Gmail    |
 
 ---
 
@@ -136,8 +158,9 @@ Restaurar una copia: `./scripts/restore.sh backups/<archivo>.sql.gz`
 repartiendo el trabajo entre varios procesos (`pcntl`):
 
 ```bash
-docker exec rp_app php tools/recordatorios.php            # simulacro
-docker exec rp_app php tools/recordatorios.php --send     # envío real
+docker exec rp_app php tools/recordatorios.php                          # simulacro
+docker exec rp_app php tools/recordatorios.php --send                   # envío real
+docker exec rp_app php tools/recordatorios.php --days=7 --workers=4 --send
 ```
 
 ---
@@ -146,16 +169,16 @@ docker exec rp_app php tools/recordatorios.php --send     # envío real
 
 Archivo `api/api.php`, parámetro `?action=`:
 
-| Acción            | Método | Descripción                          |
-|-------------------|--------|--------------------------------------|
-| `origenes`        | GET    | Lista de ciudades de origen          |
-| `destinos`        | GET    | Lista de destinos activos            |
-| `paquetes`        | GET    | Todos los paquetes (home)            |
-| `paquete`         | GET    | Detalle de un paquete por `id`       |
-| `buscar`          | GET    | Búsqueda con filtros                 |
-| `reservar`        | POST   | Crear reserva (CSRF requerido)       |
-| `mis-reservas`    | GET    | Reservas del usuario en sesión       |
-| `cancelar-reserva`| POST   | Cancelar reserva (CSRF requerido)    |
+| Acción             | Método | Descripción                          |
+|--------------------|--------|--------------------------------------|
+| `origenes`         | GET    | Lista de ciudades de origen          |
+| `destinos`         | GET    | Lista de destinos activos            |
+| `paquetes`         | GET    | Todos los paquetes (home)            |
+| `paquete`          | GET    | Detalle de un paquete por `id`       |
+| `buscar`           | GET    | Búsqueda con filtros                 |
+| `reservar`         | POST   | Crear reserva (CSRF requerido)       |
+| `mis-reservas`     | GET    | Reservas del usuario en sesión       |
+| `cancelar-reserva` | POST   | Cancelar reserva (CSRF requerido)    |
 
 Archivo `api/auth.php`: `session`, `login`, `register`, `logout`,
 `update-profile`, `forgot-password`, `reset-password`. Todos los POST requieren
@@ -165,9 +188,13 @@ la cabecera `X-CSRF-Token` (se inyecta como meta en `index.php`).
 
 ## Panel de administración
 
+USUARIO:
+admin@rp.es
+RPadmin123!
+
 Accesible en `admin/login.php`. Requiere un usuario con `rol = 0` en la tabla
-`usuarios`. Para crear el primer administrador: regístrate como usuario normal y
-luego promociónalo desde la base de datos:
+`usuarios`. Para crear un administrador: regístrate como usuario normal y
+luego promoviónalo desde la base de datos:
 
 ```sql
 UPDATE usuarios SET rol = 0 WHERE email = 'tu_correo@ejemplo.com';
@@ -203,10 +230,8 @@ Guía paso a paso con capturas en [`docs/manual_usuario.md`](docs/manual_usuario
 - Documentación de Docker — <https://docs.docker.com/>
 - Documentación de Kubernetes — <https://kubernetes.io/docs/>
 - Documentación de Apache HTTP Server — <https://httpd.apache.org/docs/>
-- msmtp — <https://marlam.de/msmtp/>
+- PHPMailer — <https://github.com/PHPMailer/PHPMailer>
 - OWASP — Buenas prácticas de seguridad web — <https://owasp.org/>
-
-<!-- ⚠️ Añade aquí los tutoriales y recursos concretos que hayáis usado. -->
 
 ---
 

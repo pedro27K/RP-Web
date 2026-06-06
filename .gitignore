@@ -1,12 +1,17 @@
- # Credenciales y configuración local
+"" 
+# Entorno y credenciales
 .env
 
-# Copias de seguridad de la base de datos
-backups/
+# Logs
+*.log
 
-# Dependencias PHP (Composer)
-vendor/
-
-# Archivos basura del sistema operativo
+# Sistema operativo
 .DS_Store
 Thumbs.db
+
+# Docker volúmenes locales
+mysql_data/
+
+# Editor
+.vscode/
+.idea/
