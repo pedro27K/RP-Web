@@ -13,36 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserva_id'], $_POST[
         $stmtUpd = $db->prepare('UPDATE reservas SET estado = ? WHERE id = ?');
         $stmtUpd->execute([$nuevo, $reservaId]);
 
-        if ($nuevo === 'confirmada' || $nuevo === 'cancelada') {
-            require_once __DIR__ . '/send-booking-email.php';
-            $stmtMail = $db->prepare("
-                SELECT r.referencia, r.fecha_salida, r.fecha_regreso,
-                       r.num_adultos, r.num_ninos, r.precio_total, r.seguro_cancelacion,
-                       r.precio_coche,
-                       p.nombre  AS paquete,
-                       d.nombre  AS destino, d.pais,
-                       COALESCE(u.nombre, '')            AS cli_nombre,
-                       COALESCE(u.apellidos, '')         AS cli_apellidos,
-                       COALESCE(u.email, c.email, '')    AS cli_email,
-                       c2.nombre                         AS coche_nombre
-                FROM reservas r
-                JOIN paquetes p ON p.id = r.paquete_id
-                LEFT JOIN destinos d ON d.id = p.destino_id
-                LEFT JOIN usuarios u ON u.id = r.usuario_id
-                LEFT JOIN contactos_reserva c ON c.reserva_id = r.id
-                LEFT JOIN coches c2 ON c2.id = r.coche_id
-                WHERE r.id = ?
-            ");
-            $stmtMail->execute([$reservaId]);
-            $datosReserva = $stmtMail->fetch();
-            if ($datosReserva && $datosReserva['cli_email']) {
-                if ($nuevo === 'confirmada') {
-                    enviarCorreoConfirmacion($datosReserva);
-                } else {
-                    enviarCorreoCancelacion($datosReserva);
-                }
-            }
-        }
     }
     header('Location: bookings.php' . (isset($_GET['estado']) ? '?estado=' . urlencode($_GET['estado']) : ''));
     exit;
