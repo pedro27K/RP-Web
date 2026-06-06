@@ -59,12 +59,10 @@ RP/
 ├── docs/          Documentación: diagrama E/R, manual de usuario, diario
 ├── fonts/         Tipografía Plus Jakarta Sans
 ├── includes/      Fragmentos PHP comunes (nav, footer, sesión)
-├── js/            Lógica del frontend, un archivo por pantalla
 ├── k8s/           Manifiestos de Kubernetes (Deployments, Services, Secret)
 ├── scripts/       Shell scripts: copias de seguridad y restauración
-├── sql/           Scripts SQL: rp.sql (producción), rp-local.sql (desarrollo)
+├── sql/           Scripts SQL: rp.sql (producción)
 ├── tools/         Worker multiproceso (recordatorios.php)
-├── vendor/        Dependencias Composer (PHPMailer)
 ├── index.php      Punto de entrada de la web pública
 ├── paquete.php    Detalle de un paquete
 ├── resultados.php Resultados de búsqueda
