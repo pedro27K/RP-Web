@@ -34,8 +34,6 @@ Ciclo: Grado Superior de ASIR · Curso académico 2025/2026
 - **Frontend**: HTML5, CSS3 y JavaScript *vanilla* (sin frameworks)
 - **Servidor web**: Apache 2.4
 - **Contenedores**: Docker y Docker Compose (desarrollo) · Kubernetes (despliegue)
-- **Correo saliente**: PHPMailer + Gmail (con contraseña de aplicación)
-- **Dependencias PHP**: Composer (PHPMailer ^7.1)
 - **Control de versiones**: Git + GitHub
 
 ---
