@@ -272,25 +272,7 @@ try {
 
             $db->commit();
 
-            // Email al cliente: reserva recibida (pendiente de confirmación)
-            require_once __DIR__ . '/../admin/send-booking-email.php';
-            enviarCorreoNuevaReserva([
-                'email'              => $c['email'],
-                'referencia'         => $referencia,
-                'destino'            => $paquete['destino_nombre'],
-                'pais'               => $paquete['pais'],
-                'paquete'            => $paquete['paquete_nombre'],
-                'noches'             => $paquete['noches'],
-                'regimen'            => $paquete['regimen'],
-                'fecha_salida'       => $fechaSalida,
-                'fecha_regreso'      => $fechaRegreso,
-                'num_adultos'        => $numAdultos,
-                'num_ninos'          => $numNinos,
-                'seguro_cancelacion' => $seguroCancelacion,
-                'precio_total'       => $precio_total,
-                'coche_nombre'       => $cocheNombre,
-                'precio_coche'       => $precioCoche,
-            ]);
+            // Envío de correo deshabilitado en versión web
 
             respuestaJson(['success' => true, 'referencia' => $referencia, 'precio_total' => $precio_total]);
 
@@ -343,29 +325,7 @@ try {
             $stmt = $db->prepare("UPDATE reservas SET estado = 'cancelada' WHERE id = :id");
             $stmt->execute([':id' => $reservaId]);
 
-            require_once __DIR__ . '/../admin/send-booking-email.php';
-            $stmtMail = $db->prepare("
-                SELECT r.referencia, r.fecha_salida, r.fecha_regreso,
-                       r.num_adultos, r.num_ninos, r.precio_total, r.seguro_cancelacion,
-                       r.precio_coche,
-                       p.nombre  AS paquete,
-                       d.nombre  AS destino, d.pais,
-                       COALESCE(u.nombre, '')         AS cli_nombre,
-                       COALESCE(u.email, c.email, '') AS cli_email,
-                       c2.nombre                      AS coche_nombre
-                FROM reservas r
-                JOIN paquetes p       ON p.id = r.paquete_id
-                LEFT JOIN destinos d  ON d.id = p.destino_id
-                LEFT JOIN usuarios u  ON u.id = r.usuario_id
-                LEFT JOIN contactos_reserva c ON c.reserva_id = r.id
-                LEFT JOIN coches c2   ON c2.id = r.coche_id
-                WHERE r.id = ?
-            ");
-            $stmtMail->execute([$reservaId]);
-            $datosReserva = $stmtMail->fetch();
-            if ($datosReserva && $datosReserva['cli_email']) {
-                enviarCorreoCancelacion($datosReserva);
-            }
+            // Envío de correo deshabilitado en versión web
 
             respuestaJson(['success' => true]);
 

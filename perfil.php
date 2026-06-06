@@ -62,28 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$reserva_id]);
                 $exito = 'Reserva cancelada correctamente.';
 
-                $stmtMail = $db->prepare("
-                    SELECT r.referencia, r.fecha_salida, r.fecha_regreso,
-                           r.num_adultos, r.num_ninos, r.precio_total, r.seguro_cancelacion,
-                           r.precio_coche,
-                           p.nombre  AS paquete,
-                           d.nombre  AS destino, d.pais,
-                           u.nombre  AS cli_nombre,
-                           u.email   AS cli_email,
-                           c2.nombre AS coche_nombre
-                    FROM reservas r
-                    JOIN paquetes p       ON p.id = r.paquete_id
-                    LEFT JOIN destinos d  ON d.id = p.destino_id
-                    LEFT JOIN usuarios u  ON u.id = r.usuario_id
-                    LEFT JOIN coches c2   ON c2.id = r.coche_id
-                    WHERE r.id = ?
-                ");
-                $stmtMail->execute([$reserva_id]);
-                $datosReserva = $stmtMail->fetch();
-                if ($datosReserva && $datosReserva['cli_email']) {
-                    require_once __DIR__ . '/admin/send-booking-email.php';
-                    enviarCorreoCancelacion($datosReserva);
-                }
+                // Envío de correo deshabilitado en versión web
             }
         } catch (Exception $e) {
             $error = 'Error al cancelar la reserva.';

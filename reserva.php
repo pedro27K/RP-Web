@@ -248,23 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $fecha_salida_conf = $d['fecha_salida'];
                 unset($_SESSION['pending_booking']);
 
-                require_once __DIR__ . '/admin/send-booking-email.php';
-                enviarCorreoConfirmacion([
-                    'cli_email'          => $d['email'],
-                    'cli_nombre'         => '',
-                    'referencia'         => $referencia,
-                    'destino'            => $paquete['destino_nombre'],
-                    'pais'               => $paquete['pais'],
-                    'paquete'            => $paquete['nombre'],
-                    'fecha_salida'       => $d['fecha_salida'],
-                    'fecha_regreso'      => $d['fecha_regreso'],
-                    'num_adultos'        => (int)$d['num_adultos'],
-                    'num_ninos'          => (int)$d['num_ninos'],
-                    'seguro_cancelacion' => (bool)$d['seguro'],
-                    'precio_total'       => $precio_total,
-                    'coche_nombre'       => $coche_nombre,
-                    'precio_coche'       => $precio_coche,
-                ]);
+                // Envío de correo deshabilitado en versión web
 
             } catch (Exception $e) {
                 if ($db->inTransaction()) $db->rollBack();
