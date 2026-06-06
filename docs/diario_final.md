@@ -105,7 +105,6 @@
 
 | Alumno | Actividad | Duración |
 |--------|-----------|----------|
-
 | Pedro | Revisión final de `README.md`, `MODULOS.md` y `docs/manual_usuario.md`; limpieza del repositorio. | 2 h |
 | Raquel | Comprobación del repositorio público de GitHub (`pedro27K/RP-Local` y `pedro27K/RP-Web`): estructura de ficheros, renderizado correcto del `README.md` y accesibilidad pública | 1 h |
 | Raquel | Elaboración del diario de actividades (`docs/diario.md`) | 2 h |
